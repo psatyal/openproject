@@ -29,7 +29,13 @@
 import { States } from 'core-app/core/states/states.service';
 import { StateService, TransitionService } from '@uirouter/core';
 import {
-  ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
 } from '@angular/core';
 import { LoadingIndicatorService } from 'core-app/core/loading-indicator/loading-indicator.service';
 import { I18nService } from 'core-app/core/i18n/i18n.service';
@@ -44,6 +50,7 @@ import { APIV3Service } from 'core-app/core/apiv3/api-v3.service';
 import { MainMenuNavigationService } from 'core-app/core/main-menu/main-menu-navigation.service';
 import { MainMenuToggleService } from 'core-app/core/main-menu/main-menu-toggle.service';
 import { CollectionResource } from 'core-app/features/hal/resources/collection-resource';
+import { IOpSidemenuItem } from 'core-app/shared/components/sidemenu/sidemenu.component';
 
 export type QueryCategory = 'starred'|'public'|'private'|'default';
 
@@ -75,7 +82,7 @@ export const wpQuerySelectSelector = 'wp-query-select';
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './wp-query-select.template.html',
 })
-export class WorkPackageQuerySelectDropdownComponent extends UntilDestroyedMixin implements OnInit {
+export class WorkPackageQuerySelectDropdownComponent extends UntilDestroyedMixin implements OnInit, OnDestroy {
   @ViewChild('wpQueryMenuSearchInput', { static: true }) _wpQueryMenuSearchInput:ElementRef;
 
   @ViewChild('queryResultsContainer', { static: true }) _queryResultsContainerElement:ElementRef;
@@ -83,6 +90,8 @@ export class WorkPackageQuerySelectDropdownComponent extends UntilDestroyedMixin
   public loading = false;
 
   public noResults = false;
+
+  public queryCategories:IOpSidemenuItem[] = [];
 
   public text = {
     search: this.I18n.t('js.toolbar.search_query_label'),
@@ -127,7 +136,7 @@ export class WorkPackageQuerySelectDropdownComponent extends UntilDestroyedMixin
     super();
   }
 
-  public ngOnInit() {
+  ngOnInit():void {
     this.queryResultsContainer = jQuery(this._queryResultsContainerElement.nativeElement);
     this.projectIdentifier = this.element.nativeElement.getAttribute('data-project-identifier');
 
@@ -142,12 +151,12 @@ export class WorkPackageQuerySelectDropdownComponent extends UntilDestroyedMixin
     this.cdRef.detach();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy():void {
     super.ngOnDestroy();
     this.unregisterTransitionListener();
   }
 
-  private initializeAutocomplete() {
+  private initializeAutocomplete():void {
     if (this.initialized) {
       return;
     }
@@ -159,6 +168,58 @@ export class WorkPackageQuerySelectDropdownComponent extends UntilDestroyedMixin
     this.setupAutoCompletion(this.searchInput);
     this.updateMenuOnChanges();
     this.loadQueries();
+
+    // TODO: replace old logic with this, once it is functional
+    this.initializeQueries();
+  }
+
+  private initializeQueries():void {
+    this.queryCategories = [];
+    const categories:{ [category:string]:IOpSidemenuItem[] } = {
+      starred: [],
+      default: [],
+      public: [],
+      private: [],
+    };
+
+    // TODO: use global query store
+    this.apiV3Service
+      .queries
+      .filterNonHidden(this.CurrentProject.identifier)
+      .pipe(this.untilDestroyed())
+      .subscribe((queryCollection) => {
+        queryCollection.elements.forEach((query) => {
+          let cat = 'private';
+          if (query.public) {
+            cat = 'public';
+          }
+          if (query.starred) {
+            cat = 'starred';
+          }
+
+          categories[cat].push(this.toOpSideMenuItem(query));
+        });
+
+        this.insertCategoryMap(categories);
+      });
+  }
+
+  private toOpSideMenuItem(query:QueryResource):IOpSidemenuItem {
+    // TODO: use uiSref instead of href to prevent full reload of the page
+    return { title: query.name, href: this.getQueryLink(query) };
+  }
+
+  private insertCategoryMap(categories:{ [category:string]:IOpSidemenuItem[] }):void {
+    // TODO: check why "collapse" doesn't work
+    this.queryCategories = [
+      { title: this.text.scope_starred, children: categories.starred, collapsible: true },
+      { title: this.text.scope_default, children: this.wpStaticQueries.allItems, collapsible: true },
+      { title: this.text.scope_global, children: categories.public, collapsible: true },
+      { title: this.text.scope_private, children: categories.private, collapsible: true },
+    ];
+
+    console.log(this.queryCategories);
+    this.cdRef.detectChanges();
   }
 
   private transformQueries(collection:CollectionResource<QueryResource>) {
@@ -437,6 +498,16 @@ export class WorkPackageQuerySelectDropdownComponent extends UntilDestroyedMixin
     );
 
     this.toggleService.closeWhenOnMobile();
+  }
+
+  private getQueryLink(query:QueryResource):string {
+    const params = {
+      query_id: query.id,
+      query_props: null,
+      projects: 'projects',
+      projectPath: this.projectIdentifier,
+    };
+    return this.$state.href('work-packages.partitioned.list', params);
   }
 
   private getQueryParams(item:IAutocompleteItem) {

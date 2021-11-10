@@ -33,6 +33,7 @@ import { PathHelperService } from 'core-app/core/path-helper/path-helper.service
 import { CurrentProjectService } from 'core-app/core/current-project/current-project.service';
 import { StateService } from '@uirouter/core';
 import { CurrentUserService } from 'core-app/core/current-user/current-user.service';
+import { IOpSidemenuItem } from 'core-app/shared/components/sidemenu/sidemenu.component';
 
 @Injectable()
 export class WorkPackageStaticQueriesService {
@@ -40,7 +41,7 @@ export class WorkPackageStaticQueriesService {
     private readonly $state:StateService,
     private readonly CurrentProject:CurrentProjectService,
     private readonly PathHelper:PathHelperService,
-    private readonly CurrentUserService:CurrentUserService) {
+    private readonly CurrentUser:CurrentUserService) {
   }
 
   public text = {
@@ -95,7 +96,7 @@ export class WorkPackageStaticQueriesService {
       });
     }
 
-    if (this.CurrentUserService.isLoggedIn) {
+    if (this.CurrentUser.isLoggedIn) {
       items = items.concat([
         {
           identifier: 'created_by_me',
@@ -108,6 +109,56 @@ export class WorkPackageStaticQueriesService {
           query_props: '{"c":["id","subject","type","status","author","updatedAt"],"hi":false,"g":"","t":"updatedAt:desc,id:asc","f":[{"n":"status","o":"o","v":[]},{"n":"assigneeOrGroup","o":"=","v":["me"]}]}',
         },
       ]);
+    }
+
+    return items;
+  }
+
+  public get allItems():IOpSidemenuItem[] {
+    let items:IOpSidemenuItem[] = [
+      {
+        title: this.text.all_open,
+        href: '#',
+      },
+      {
+        title: this.text.latest_activity,
+        href: '#',
+        uiParams: '{"c":["id","subject","type","status","assignee","updatedAt"],"hi":false,"g":"","t":"updatedAt:desc","f":[{"n":"status","o":"o","v":[]}]}',
+      },
+      {
+        title: this.text.gantt,
+        href: '#',
+        uiParams: '{"c":["id","type","subject","status","startDate","dueDate"],"tv":true,"tzl":"auto","tll":"{\\"left\\":\\"startDate\\",\\"right\\":\\"dueDate\\",\\"farRight\\":\\"subject\\"}","hi":true,"g":"","t":"startDate:asc","f":[{"n":"status","o":"o","v":[]}]}',
+      },
+      {
+        title: this.text.recently_created,
+        href: '#',
+        uiParams: '{"c":["id","subject","type","status","assignee","createdAt"],"hi":false,"g":"","t":"createdAt:desc","f":[{"n":"status","o":"o","v":[]}]}',
+      },
+    ];
+
+    const projectIdentifier = this.CurrentProject.identifier;
+    if (projectIdentifier) {
+      items.push({
+        title: this.text.summary,
+        href: `${this.PathHelper.projectWorkPackagesPath(projectIdentifier)}/report`,
+      });
+    }
+
+    if (this.CurrentUser.isLoggedIn) {
+      items = [
+        ...items,
+        {
+          title: this.text.created_by_me,
+          href: '#',
+          uiParams: '{"c":["id","subject","type","status","assignee","updatedAt"],"hi":false,"g":"","t":"updatedAt:desc,id:asc","f":[{"n":"status","o":"o","v":[]},{"n":"author","o":"=","v":["me"]}]}',
+        },
+        {
+          title: this.text.assigned_to_me,
+          href: '#',
+          uiParams: '{"c":["id","subject","type","status","author","updatedAt"],"hi":false,"g":"","t":"updatedAt:desc,id:asc","f":[{"n":"status","o":"o","v":[]},{"n":"assigneeOrGroup","o":"=","v":["me"]}]}',
+        },
+      ];
     }
 
     return items;
