@@ -124,6 +124,27 @@ describe UserMailer, type: :mailer do
     end
   end
 
+  describe '#backup_ready' do
+    before do
+      described_class.backup_ready(recipient).deliver_now
+    end
+
+    it_behaves_like 'mail is sent' do
+      it 'has the expected subject' do
+        expect(deliveries.first.subject)
+          .to eql I18n.t("mail_subject_backup_ready")
+      end
+
+      it 'includes the url to the instance' do
+        expect(deliveries.first.body.encoded)
+          .to match Regexp.union(
+            /Your requested backup is ready. You can download it here/,
+            /#{Setting.protocol}:\/\/#{Setting.host_name}/
+          )
+      end
+    end
+  end
+
   describe '#wiki_content_added' do
     let(:wiki_content) { create(:wiki_content) }
 
@@ -234,14 +255,20 @@ describe UserMailer, type: :mailer do
     let(:logs) { ['info: foo', 'error: bar'] }
     let(:recipient) { user }
     let(:current_time) { "2022-11-03 9:15".to_time }
-    let(:incoming_email) do
-      Mail.new(subject: mail_subject, message_id:, body:, from:)
-    end
-
     let(:mail_subject) { 'New work package 42' }
-    let(:message_id) { '<000501c8d452$a95cd7e0$0a00a8c0@osiris>' }
+    let(:message_id) { '000501c8d452$a95cd7e0$0a00a8c0@osiris' }
     let(:from) { 'l.lustig@openproject.com' }
     let(:body) { "Project: demo-project" }
+
+    let(:incoming_email) do
+      {
+        message_id:,
+        from:,
+        subject: mail_subject,
+        quote: body,
+        text: body
+      }
+    end
 
     let(:outgoing_email) { deliveries.first }
 

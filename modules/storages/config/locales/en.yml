@@ -26,6 +26,13 @@ en:
               cannot_be_connected_to: "can not be connected to."
               minimal_nextcloud_version_unmet: "does not meet minimal version requirements (must be Nextcloud 23 or higher)"
               not_nextcloud_server: "is not a Nextcloud server"
+              op_application_not_installed: >
+                appears to not have the app "OpenProject integration" installed. Please install it first and then try
+                again.
+              authorization_header_missing: >
+                is not fully set up. The Nextcloud instance does not receive the "Authorization" header, which is 
+                necessary for a Bearer token based authorization of API requests. Please double check your HTTP
+                server configuration.
         storages/file_link:
           attributes:
             origin_id:
@@ -72,7 +79,7 @@ en:
     label_file_link: "File link"
     label_file_links: "File links"
     label_name: "Name"
-    label_host: "Host"
+    label_host: "Host URL"
     label_oauth_breadcrumb:
       openproject: "OpenProject OAuth"
       nextcloud: "Nextcloud OAuth"

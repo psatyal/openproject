@@ -106,7 +106,7 @@ describe 'My page time entries current user widget spec', type: :feature, js: tr
   let(:user) do
     create(:user,
            member_in_project: project,
-           member_with_permissions: %i[view_time_entries edit_time_entries view_work_packages log_time])
+           member_with_permissions: %i[view_time_entries edit_time_entries view_work_packages log_own_time])
   end
   let(:my_page) do
     Pages::My::Page.new
@@ -184,6 +184,8 @@ describe 'My page time entries current user widget spec', type: :feature, js: tr
 
     time_logging_modal.has_field_with_value 'spentOn', (Date.today.beginning_of_week(:sunday) + 3.days).strftime
 
+    time_logging_modal.shows_field 'user', false
+
     expect(page)
       .not_to have_selector('.ng-spinner-loader')
 
@@ -205,7 +207,7 @@ describe 'My page time entries current user widget spec', type: :feature, js: tr
 
     sleep(0.1)
 
-    time_logging_modal.perform_action 'Create'
+    time_logging_modal.perform_action 'Save'
     time_logging_modal.is_visible false
 
     my_page.expect_and_dismiss_toaster message: I18n.t(:notice_successful_create)

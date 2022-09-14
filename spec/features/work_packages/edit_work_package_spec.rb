@@ -56,7 +56,7 @@ describe 'edit work package',
                           type:,
                           created_at: 5.days.ago.to_date.to_fs(:db))
 
-    note_journal = work_package.journals.last
+    note_journal = work_package.journals.reload.last
     note_journal.update_columns(created_at: 5.days.ago.to_date.to_fs(:db),
                                 updated_at: 5.days.ago.to_date.to_fs(:db))
 
@@ -168,7 +168,9 @@ describe 'edit work package',
     wp_page.expect_attributes assignee: manager.name
     wp_page.expect_activity_message("Assignee set to #{manager.name}")
 
-    wp_page.update_attributes assignee: '-'
+    field = wp_page.edit_field :assignee
+    field.unset_value
+
     wp_page.expect_attributes assignee: '-'
 
     wp_page.visit!

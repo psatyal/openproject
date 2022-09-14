@@ -46,20 +46,22 @@ import { WorkPackageAutocompleterComponent } from 'core-app/shared/components/au
 import { WorkPackageCommentFieldComponent } from 'core-app/features/work-packages/components/work-package-comment/wp-comment-field.component';
 import { ProjectEditFieldComponent } from './field-types/project-edit-field.component';
 import { HoursDurationEditFieldComponent } from 'core-app/shared/components/fields/edit/field-types/hours-duration-edit-field.component';
+import { UserEditFieldComponent } from './field-types/user-edit-field.component';
+import { DaysDurationEditFieldComponent } from 'core-app/shared/components/fields/edit/field-types/days-duration-edit-field.compontent';
 
 export function initializeCoreEditFields(editFieldService:EditFieldService, selectAutocompleterRegisterService:SelectAutocompleterRegisterService) {
-  return () => {
+  return ():void => {
     editFieldService.defaultFieldType = 'text';
     editFieldService
       .addFieldType(TextEditFieldComponent, 'text', ['String'])
       .addFieldType(IntegerEditFieldComponent, 'integer', ['Integer'])
       .addFieldType(HoursDurationEditFieldComponent, 'estimatedTime', ['estimatedTime'])
       .addFieldType(ProjectEditFieldComponent, 'project', ['Project'])
+      .addFieldType(UserEditFieldComponent, 'user', ['User'])
       .addFieldType(SelectEditFieldComponent, 'select', [
         'Priority',
         'Status',
         'Type',
-        'User',
         'Version',
         'TimeEntriesActivity',
         'Category',
@@ -80,10 +82,14 @@ export function initializeCoreEditFields(editFieldService:EditFieldService, sele
       .addSpecificFieldType('WorkPackage', CombinedDateEditFieldComponent,
         'date',
         ['combinedDate', 'startDate', 'dueDate', 'date'])
+      .addSpecificFieldType('WorkPackage', DaysDurationEditFieldComponent,
+        'duration',
+        ['duration'])
       .addSpecificFieldType('Project', ProjectStatusEditFieldComponent, 'status', ['status'])
       .addSpecificFieldType('TimeEntry', PlainFormattableEditFieldComponent, 'comment', ['comment'])
       .addSpecificFieldType('TimeEntry', TimeEntryWorkPackageEditFieldComponent, 'workPackage', ['WorkPackage'])
-      .addSpecificFieldType('TimeEntry', HoursDurationEditFieldComponent, 'hours', ['hours']);
+      .addSpecificFieldType('TimeEntry', HoursDurationEditFieldComponent, 'hours', ['hours'])
+      .addSpecificFieldType('WorkPackage', HoursDurationEditFieldComponent, 'remainingTime', ['remainingTime']);
 
     selectAutocompleterRegisterService.register(VersionAutocompleterComponent, 'Version');
     selectAutocompleterRegisterService.register(WorkPackageAutocompleterComponent, 'WorkPackage');

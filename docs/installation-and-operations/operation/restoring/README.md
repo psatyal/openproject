@@ -151,7 +151,7 @@ First we create the folder to be mounted by our OpenProject container.
 While we're at we also create the assets folder which should be mounted too.
 
 ```
-mkdir /var/lib/openproject/{pgdata,assets}
+mkdir -p /var/lib/openproject/{pgdata,assets}
 ```
 
 #### 2) Initialize the database
@@ -212,7 +212,7 @@ docker exec -it postgres pg_restore -U postgres postgresql-dump-20211119210038.p
 
 **Dump restored**
 
-Once the dump is restored yuo can stop the postgres container using `docker stop postgres`.
+Once the dump is restored you can stop the postgres container using `docker stop postgres`.
 Now you have to fix the permissions that were changed by the postgres container so OpenProject
 can use the files again.
 

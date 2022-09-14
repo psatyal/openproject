@@ -1,6 +1,9 @@
-<div class="spot-list--item-floating-wrapper">
+<div
+  class="spot-list--item-floating-wrapper op-files-tab--file-list-item-floating-wrapper"
+  [ngClass]="{ 'op-files-tab--file-list-item-floating-wrapper_disabled': disabled }"
+>
   <a
-    class="spot-list--item-action op-files-tab--file-list-item-action"
+    class="spot-list--item-action spot-list--item-action_link op-files-tab--file-list-item-action"
     [ngClass]="{ 'disabled': disabled, 'view-not-allowed': !viewAllowed }"
     [href]="fileLink._links.staticOriginOpen.href"
     [title]="fileLink.originData.name"
@@ -28,9 +31,10 @@
   </a>
   <div
     *ngIf="!disabled && viewAllowed"
-    class="spot-list--item-floating-actions op-files-tab--file-list-item-floating-actions"
+    class="spot-list--item-floating-actions op-files-tab--file-list-item-floating-actions hidden-for-mobile"
   >
     <a
+      *ngIf="downloadAllowed"
       class="spot-link"
       [title]="text.title.downloadFileLink"
       [href]="fileLink._links.staticOriginDownload.href"
@@ -49,14 +53,14 @@
       *ngIf="allowEditing"
       class="spot-link"
       [title]="text.title.removeFileLink"
-      (click)="removeFileLink.emit()"
+      (click)="confirmRemoveFileLink()"
     >
       <span class="spot-icon spot-icon_remove-link"></span>
     </button>
   </div>
   <div
     *ngIf="!disabled && !viewAllowed"
-    class="spot-list--item-floating-actions op-files-tab--file-list-item-floating-text"
+    class="spot-list--item-floating-actions op-files-tab--file-list-item-floating-text hidden-for-mobile"
   >
     <span class="spot-icon spot-icon_info2 op-files-tab--file-list-item-floating-text-icon"></span>
     <span [textContent]="text.floatingText.noViewPermission"></span>

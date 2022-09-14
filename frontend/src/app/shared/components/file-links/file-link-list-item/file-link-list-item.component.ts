@@ -69,6 +69,8 @@ export class FileLinkListItemComponent implements OnInit, AfterViewInit {
 
   fileLinkIcon:IFileIcon;
 
+  downloadAllowed:boolean;
+
   viewAllowed:boolean;
 
   text = {
@@ -81,6 +83,7 @@ export class FileLinkListItemComponent implements OnInit, AfterViewInit {
     floatingText: {
       noViewPermission: this.i18n.t('js.storages.file_links.no_permission'),
     },
+    removalConfirmation: this.i18n.t('js.storages.file_links.remove_confirmation'),
   };
 
   constructor(
@@ -99,6 +102,8 @@ export class FileLinkListItemComponent implements OnInit, AfterViewInit {
     }
 
     this.fileLinkIcon = getIconForMimeType(this.originData.mimeType);
+
+    this.downloadAllowed = this.originData.mimeType !== 'application/x-op-directory';
 
     this.text.title.downloadFileLink = this.i18n.t(
       'js.storages.file_links.download',
@@ -123,6 +128,12 @@ export class FileLinkListItemComponent implements OnInit, AfterViewInit {
         { hide: true, link: false },
         { hide: false, size: 'mini' },
       );
+    }
+  }
+
+  public confirmRemoveFileLink():void {
+    if (window.confirm(this.text.removalConfirmation)) {
+      this.removeFileLink.emit();
     }
   }
 }

@@ -24,6 +24,10 @@ ru:
               cannot_be_connected_to: "не может быть подключен."
               minimal_nextcloud_version_unmet: "не соответствует минимальным требованиям к версии (должен быть Nextcloud 23 или выше)"
               not_nextcloud_server: "не является сервером Nextcloud"
+              op_application_not_installed: >
+                похоже, что приложение "Интеграция с OpenProject" не установлено. Сначала установите его и повторите попытку.
+              authorization_header_missing: >
+                не полностью настроено. Экземпляр Nextcloud не получает заголовок "Authorization", который необходим для подтверждения запросов API на основе токена Bearer. Пожалуйста, проверьте конфигурацию HTTP сервера.
         storages/file_link:
           attributes:
             origin_id:
@@ -42,7 +46,7 @@ ru:
     page_titles:
       project_settings:
         index: "Файловые хранилища, доступные в этом проекте"
-        new: "Add a file storage to this project"
+        new: "Добавить хранилище файлов в этот проект"
     instructions:
       type: "Перед установкой убедитесь, что у вас есть права администрирования в вашем экземпляре Nextcloud и что перед установкой установлено следующее приложение:"
       type_link_text: "«Интеграционный OpenProject»"
@@ -66,7 +70,7 @@ ru:
     label_file_link: "Ссылка на файл"
     label_file_links: "Ссылки на файл"
     label_name: "Имя"
-    label_host: "Хост"
+    label_host: "URL хоста"
     label_oauth_breadcrumb:
       openproject: "OpenProject OAuth"
       nextcloud: "Nextcloud OAuth"
